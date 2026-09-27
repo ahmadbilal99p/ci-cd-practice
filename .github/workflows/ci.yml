@@ -14,8 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run a simple test
+      - name: Build Docker image
+        run: docker build -t my-ci-app .
+
+      - name: Run container and test
         run: |
-          echo "Code checked out successfully"
-          echo "Running basic checks..."
-          ls -la
+          docker run -d -p 8080:80 --name test-container my-ci-app
+          sleep 3
+          curl --fail http://localhost:8080 || exit 1
+          docker stop test-container
